@@ -77,15 +77,15 @@ namespace SRTSpliter
             string segmentPrefix = Path.GetFileNameWithoutExtension(wavfile.FullName);
 
             List<string> commandList = new List<string>();
-            var CommandBuilder = new StringBuilder($" -hide_banner -y -i \"{wavfile}\" -c:a pcm_s16le -ac 1 -ar 44100 ");
+            var CommandBuilder = new StringBuilder($" -hide_banner -y -i \"{wavfile}\" ");
 
             for (int index = 0; index < stamps.Count; index++)
             {
-                string buffer = $" {stamps[index]} \"{ResultDir.FullName}/{segmentPrefix}_{index + 1}.wav\"";
-                if (CommandBuilder.Length + buffer.Length > 1000)
+                string buffer = $" {stamps[index]} -c:a pcm_s16le -ac 1 -ar 44100 \"{ResultDir.FullName}/{segmentPrefix}_{index + 1}.wav\"";
+                if (CommandBuilder.Length + buffer.Length > 1500)
                 {
                     commandList.Add(CommandBuilder.ToString());
-                    CommandBuilder = new StringBuilder($" -hide_banner -y -i \"{wavfile}\" -c:a pcm_s16le -ac 1 -ar 44100 ");
+                    CommandBuilder = new StringBuilder($" -hide_banner -y -i \"{wavfile}\" ");
                 }
                 CommandBuilder.Append(buffer);
             }

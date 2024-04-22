@@ -1,6 +1,6 @@
 # SRTSpliter
 
-为了制作TTS训练集写的自用小工具，用SRT的标注，把一段长音频分割成一堆短音频
+为了制作TTS训练集写的自用工具，用SRT的标注，把一段长音频分割成一堆短音频
 
 A tiny tool to split wav file into segments using SRT annotation.
 
@@ -29,3 +29,4 @@ command
 
 ```./SRTSpliter.exe <path/to/1.srt> <path/to/2.srt> <path/to/3.srt> <path/to/4.srt> ....```
 
+segments will be PCM 16bit 44100hz mono. 
