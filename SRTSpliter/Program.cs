@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SRTSpliter
 {
@@ -20,9 +17,7 @@ namespace SRTSpliter
 
     internal class Program
     {
-        public static object NEOElapsed { get; private set; }
-
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             List<FileInfo> srtFiles = args.Select(x => new FileInfo(x)).ToList();
             Stopwatch sw = new Stopwatch();
@@ -30,8 +25,8 @@ namespace SRTSpliter
             foreach (FileInfo file in srtFiles)
             {
                 string dirName = Path.GetFileNameWithoutExtension(file.FullName);
-                string resultDirPath=  Path.Combine(file.Directory.FullName, dirName);
-                if(!Directory.Exists(resultDirPath) ) 
+                string resultDirPath = Path.Combine(file.Directory.FullName, dirName);
+                if (!Directory.Exists(resultDirPath))
                 {
                     Directory.CreateDirectory(resultDirPath);
                 }
@@ -40,9 +35,7 @@ namespace SRTSpliter
 
                 var stampCollection = ParseSRT(file);
 
-                
                 SplitWav(stampCollection, wavfile, resultDir);
-                
             }
             sw.Stop();
             double Elapsed = sw.Elapsed.TotalSeconds;
@@ -51,18 +44,17 @@ namespace SRTSpliter
             Console.WriteLine("Split Finish...");
             Console.ReadLine();
         }
+
         private static List<TimeStamp> ParseSRT(FileInfo file)
         {
             Regex re = new Regex(@"^(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})");
-            List < TimeStamp > result = new List<TimeStamp>();
+            List<TimeStamp> result = new List<TimeStamp>();
             using (StreamReader sr = new StreamReader(file.FullName))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
                     Match match = re.Match(line);
-
-                    // 判断是否有匹配
                     if (match.Success)
                     {
                         TimeStamp stamp = new TimeStamp
@@ -71,8 +63,6 @@ namespace SRTSpliter
                             end = match.Groups[2].Value.Replace(',', '.')
                         };
                         result.Add(stamp);
-
-                        // 打印匹配到的内容
                         Console.WriteLine("Match found: " + stamp.ToString());
                     }
                 }
@@ -83,16 +73,16 @@ namespace SRTSpliter
 
         private static void SplitWav(List<TimeStamp> stamps, FileInfo wavfile, DirectoryInfo ResultDir)
         {
-            string ffmpegPath =  "ffmpeg";
+            string ffmpegPath = "ffmpeg";
             string segmentPrefix = Path.GetFileNameWithoutExtension(wavfile.FullName);
 
             List<string> commandList = new List<string>();
             var CommandBuilder = new StringBuilder($" -hide_banner -y -i \"{wavfile}\" -c:a pcm_s16le -ac 1 -ar 44100 ");
 
-            for (int index =0; index<stamps.Count; index++)
+            for (int index = 0; index < stamps.Count; index++)
             {
                 string buffer = $" {stamps[index]} \"{ResultDir.FullName}/{segmentPrefix}_{index + 1}.wav\"";
-                if (CommandBuilder.Length+ buffer.Length > 1000)
+                if (CommandBuilder.Length + buffer.Length > 1000)
                 {
                     commandList.Add(CommandBuilder.ToString());
                     CommandBuilder = new StringBuilder($" -hide_banner -y -i \"{wavfile}\" -c:a pcm_s16le -ac 1 -ar 44100 ");
@@ -127,7 +117,4 @@ namespace SRTSpliter
             });
         }
     }
-
-
-
 }
